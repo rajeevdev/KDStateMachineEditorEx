@@ -52,8 +52,17 @@ void KDSME::ModifyElementCommand::moveBy(qreal dx, qreal dy)
     updateText();
 }
 
+void ModifyElementCommand::resize(qreal w, qreal h)
+{
+    m_newSize = QSizeF(w, h);
+    m_operation = ResizeOperation;
+    updateText();
+}
+
 void ModifyElementCommand::setGeometry(const QRectF& geometry)
 {
+    qDebug() << m_oldGeometry;
+    qDebug() << geometry;
     m_newGeometry = geometry;
     m_operation = SetGeometryOperation;
     updateText();
@@ -69,6 +78,11 @@ void KDSME::ModifyElementCommand::redo()
     switch (m_operation) {
     case MoveOperation:
         m_item->setPos(m_item->pos() + m_moveByData);
+        break;
+    case ResizeOperation:
+        m_oldSize = QSizeF(m_item->width(), m_item->height());
+        m_item->setWidth(m_newSize.width());
+        m_item->setHeight(m_newSize.height());
         break;
     case SetGeometryOperation:
         m_oldGeometry = QRectF(m_item->pos(), QSizeF(m_item->width(), m_item->height()));
@@ -87,6 +101,10 @@ void KDSME::ModifyElementCommand::undo()
     switch (m_operation) {
     case MoveOperation:
         m_item->setPos(m_item->pos() - m_moveByData);
+        break;
+    case ResizeOperation:
+        m_item->setWidth(m_oldSize.width());
+        m_item->setHeight(m_oldSize.height());
         break;
     case SetGeometryOperation:
         setElementGeometry(m_item.data(), m_oldGeometry);
@@ -107,6 +125,7 @@ bool ModifyElementCommand::mergeWith(const QUndoCommand* other)
 
     m_moveByData += cmd->m_moveByData;
     m_newGeometry = cmd->m_newGeometry;
+    m_newSize = cmd->m_newSize;
     return true;
 }
 
@@ -118,8 +137,11 @@ void KDSME::ModifyElementCommand::updateText()
     case MoveOperation:
         setText(tr("Moving item %1").arg(itemLabel));
         break;
-    case SetGeometryOperation:
+    case ResizeOperation:
         setText(tr("Resizing item %1").arg(itemLabel));
+        break;
+    case SetGeometryOperation:
+        setText(tr("Changing item geometry %1").arg(itemLabel));
         break;
     default:
         setText(QString());

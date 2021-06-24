@@ -191,7 +191,7 @@ Rectangle {
         anchors.fill: scrollView
 
         propagateComposedEvents: true
-        hoverEnabled: true
+//        hoverEnabled: true
         onWheel: {
             followActiveRegion = false;
             if (wheel.modifiers & Qt.ControlModifier) {
@@ -204,6 +204,18 @@ Rectangle {
         onPressed: {
             mouse.accepted = false
         }
+
+//        onPositionChanged: {
+//            mouse.accepted = false
+//        }
+
+//        onMouseXChanged: {
+//            mouse.accepted = false
+//        }
+
+//        onMouseYChanged: {
+//            mouse.accepted = false
+//        }
     }
 
     BirdEyeView {

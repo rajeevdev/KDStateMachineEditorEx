@@ -44,6 +44,7 @@ public:
     int id() const override { return ModifyElement; }
 
     Q_INVOKABLE void moveBy(qreal dx, qreal dy);
+    Q_INVOKABLE void resize(qreal w, qreal h);
     Q_INVOKABLE void setGeometry(const QRectF& geometry);
 
     void redo() override;
@@ -54,6 +55,7 @@ protected:
     enum Operation {
         NoOperation,
         MoveOperation,
+        ResizeOperation,
         SetGeometryOperation,
 
         /// Subclass takes care of executing this operation
@@ -68,6 +70,7 @@ private:
 
     // data
     QPointF m_moveByData;
+    QSizeF m_newSize, m_oldSize;
     QRectF m_newGeometry, m_oldGeometry;
 };
 

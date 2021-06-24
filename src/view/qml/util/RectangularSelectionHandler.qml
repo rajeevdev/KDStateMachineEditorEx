@@ -23,44 +23,92 @@ Item {
     id: root
 
     property var control
+    property bool resizeActive: false
+    property bool resizing: false
 
     signal clicked
     signal doubleClicked
 
+    property int rulersSize: 10
     Rectangle {
         id: rect
 
         anchors.fill: parent
 
         border {
-            color: Theme.currentTheme.highlightBackgroundColor
+            color: resizeActive ? "steelblue" : Theme.currentTheme.highlightBackgroundColor
             width: 2
         }
         color: "transparent"
+//        opacity: resizing ? 0.5 : 1
+
         visible: control ?
-            control.element.flags & KDSME.Element.ElementIsSelectable && control.element.selected :
-            false
-    }
+                     control.element.flags & KDSME.Element.ElementIsSelectable && control.element.selected :
+                     false
 
-    Item {
-        id: invisibleDragTarget
 
-        Drag.active: mouseArea.drag.active
-        Drag.hotSpot.x: width/2
-        Drag.hotSpot.y: height/2
+        //        MouseArea {
+        //            id: mouseArea2
+        //            anchors.fill: parent
+        //            hoverEnabled: true
+        //        }
 
-        width: parent.width
-        height: parent.height
+        Rectangle {
+            width: rulersSize
+            height: rulersSize
+            color: resizeActive ? "steelblue" : Theme.currentTheme.highlightBackgroundColor
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+
+            //            MouseArea {
+            //                anchors.fill: parent
+            //                drag.target: parent
+            //                property var previousPosition
+            //                property var previousSize
+
+            //                function resize(dw, dh) {
+            //                    var cmd = KDSME.CommandFactory.modifyElement(control.element);
+            //                    cmd.resize(dw, dh);
+            //                    commandController.push(cmd);
+            //                }
+
+            //                onPressed: {
+            //                    previousPosition = Qt.point(mouseX, mouseY)
+            //                    previousSize = Qt.size(rect.width, rect.height)
+            //                }
+
+            //                onPositionChanged: {
+            //                   if (pressedButtons == Qt.LeftButton) {
+            //                       console.log("============================")
+            //                       console.log(previousSize.width)
+            //                       console.log(mouseX)
+            //                       console.log(previousPosition.x)
+            //                       var dw = previousSize.width + mouseX
+            //                       console.log(dw)
+            //                       var dh = previousSize.height + mouseY
+            //                       resize(dw, dh)
+            //                   }
+            //                }
+            //            }
+        }
     }
 
     MouseArea {
         id: mouseArea
+        hoverEnabled: true
 
-        anchors.fill: invisibleDragTarget
+        //        width: parent.width - 10
+        //        height: parent.height - 10
+        //        anchors.centerIn: parent
+        anchors.fill: parent
 
         drag.target: control.element.flags & KDSME.Element.ElementIsDragEnabled ?
-            invisibleDragTarget :
-            null
+                         parent :
+                         null
+
+        property variant previousPosition
+        property var previousSize
 
         onClicked: {
             scene.currentItem = control.element;
@@ -76,12 +124,57 @@ Item {
             commandController.push(cmd);
         }
 
-        onXChanged: {
-            move(x, 0);
+        function resize(dw, dh) {
+            var cmd = KDSME.CommandFactory.modifyElement(control.element);
+            cmd.resize(dw, dh);
+            commandController.push(cmd);
         }
-        onYChanged: {
-            move(0, y);
+
+        onPressed: {
+            previousPosition = Qt.point(mouseX, mouseY)
+            previousSize = Qt.size(root.width, root.height)
+            if (resizeActive)
+                resizing = true
+        }
+
+        onReleased: {
+            resizing = false
+        }
+
+        onExited: {
+            if (!pressed) {
+                resizeActive = false
+            }
+        }
+
+        onPositionChanged: {
+            if (mouseX < root.width && mouseX >= root.width - rulersSize
+                    && mouseY < root.height && mouseY >= root.height - rulersSize)
+            {
+                resizeActive = true
+            }
+            else
+            {
+                if (!pressed) {
+                    resizeActive = false
+                }
+            }
+
+            if (pressedButtons == Qt.LeftButton) {
+
+                if (resizing) {
+                    var dx = mouseX - previousPosition.x
+                    var dy = mouseY - previousPosition.y
+                    var dw = previousSize.width + dx
+                   var dh = previousSize.height + dy
+                   resize(dw, dh)
+                } else {
+                    var dx = mouseX - previousPosition.x
+                    var dy = mouseY - previousPosition.y
+                    move(dx, dy)
+                }
+
+            }
         }
     }
-
 }
