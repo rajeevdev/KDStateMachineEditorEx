@@ -238,7 +238,7 @@ void QuickTransitionItem::updatePosition()
     Q_ASSERT(transition);
     const auto sourceState = transition->sourceState();
     const auto targetState = transition->targetState();
-    if (sourceState == targetState)
+    if (sourceState == targetState || targetState == Q_NULLPTR || sourceState == Q_NULLPTR)
         return;
 
     const auto sourceStateItem = itemForElement(sourceState);

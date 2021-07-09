@@ -19,6 +19,7 @@
 #include "export/scxmlexporter.h"
 #include "export/qmlexporter.h"
 #include "export/svgexporter.h"
+#include "export/statemachineexporter.h"
 #include "state.h"
 #include "statemachineview.h"
 #include "statemachinescene.h"
@@ -81,6 +82,7 @@ StateMachineToolBar::StateMachineToolBar(StateMachineView* view, QWidget* parent
 
     setWindowTitle(tr("State Machine Tool Bar"));
     d->m_exportAction = new QAction(tr("Export to File..."), this);
+
     d->m_exportAction->setObjectName(QStringLiteral("actionExportToFile"));
     d->m_exportAction->setStatusTip("Export current state machine to a file.");
     connect(d->m_exportAction, SIGNAL(triggered()), this, SLOT(handleExport()));
@@ -136,9 +138,14 @@ void StateMachineToolBar::Private::exportToFile(StateMachine* machine, const QSt
         exporter = new QmlExporter(&file);
     } else if (suffix == "svg") {
         exporter = new SvgExporter(&file);
+    } else if (suffix == "scxml") {
+        exporter = new ScxmlExporter(&file);
     } else {
         // fallback
-        exporter = new ScxmlExporter(&file);
+        file.close();
+        file.setFileName(fileName + ".statemachine");
+        file.open(QIODevice::WriteOnly);
+        exporter = new StateMachineExporter(&file);
     }
     exporter->exportMachine(machine);
 }

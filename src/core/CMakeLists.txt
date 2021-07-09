@@ -18,6 +18,7 @@ set(LIB_SRCS
   export/qmlexporter.cpp
   export/scxmlexporter.cpp
   export/svgexporter.cpp
+  export/statemachineexporter.cpp
 
   layout/layerwiselayouter.cpp
   layout/layouter.cpp
@@ -35,6 +36,7 @@ set(LIB_SRCS
 
   import/abstractimporter.cpp
   import/scxmlimporter.cpp
+  import/statemachineimporter.cpp
 
   util/depthchecker.cpp
   util/objecthelper.cpp
@@ -128,8 +130,10 @@ install(FILES
   export/abstractexporter.h
   export/qmlexporter.h
   export/scxmlexporter.h
+  export/statemachineexporter.h
   import/abstractimporter.h
   import/scxmlimporter.h
+  import/statemachineimporter.h
   model/element.h
   model/elementmodel.h
   model/elementutil.h
