@@ -89,7 +89,7 @@ void MainWindow::loadPresets(const QString& presetsDir)
 
     QStringList files = dir.entryList(QDir::Files);
     foreach (const QString& file, files) {
-        if (!file.endsWith(QLatin1String(".scxml")))
+        if (!file.endsWith(QLatin1String(".statemachine")))
             continue;
 
         QStandardItem* item = new QStandardItem(file);
